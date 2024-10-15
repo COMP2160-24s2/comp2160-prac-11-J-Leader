@@ -18,6 +18,9 @@ public class UIManager : MonoBehaviour
 #region UI Elements
     [SerializeField] private Transform crosshair;
     [SerializeField] private Transform target;
+    private Camera mainCam;
+    private float defaultZ =0f;
+    [SerializeField] private LayerMask groundLayer;
 #endregion 
 
 #region Singleton
@@ -57,6 +60,7 @@ public class UIManager : MonoBehaviour
 
         Cursor.visible = false;
         target.gameObject.SetActive(false);
+        mainCam = Camera.main;
     }
 
     void OnEnable()
@@ -75,11 +79,19 @@ public class UIManager : MonoBehaviour
     {
         MoveCrosshair();
         SelectTarget();
+        
     }
 
     private void MoveCrosshair() 
     {
         Vector2 mousePos = mouseAction.ReadValue<Vector2>();
+        Ray mousePosWorld = mainCam.ScreenPointToRay(new Vector3(mousePos.x, mousePos.y));
+        RaycastHit hit;
+        Physics.Raycast(mousePosWorld, out hit, float.PositiveInfinity, groundLayer);
+        crosshair.position = hit.point;
+
+       
+
 
         // FIXME: Move the crosshair position to the mouse position (in world coordinates)
         // crosshair.position = ...;
